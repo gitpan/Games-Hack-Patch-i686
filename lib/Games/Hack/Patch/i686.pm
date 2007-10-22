@@ -1,35 +1,69 @@
 #!/usr/bin/perl
 # vim: set sw=2 expandtab : #
 
-$VERSION=0.1;
+package Games::Hack::Patch::i686;
+
+$VERSION=0.2;
+
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw(GetNOP);
+
+
+
 
 sub GetNOP
 {
-  my($adr_start, $adr_end, @disass)=@_;
+  my($adr_start, $adr_end, $disass)=@_;
   my($binary, $diff);
 
   $binary="";
 
-  if ($disass[0] =~ m#fstp#)
+### Floating point store? Stores always %ST(0).
+  if ($disass =~ m#^f[bi]?st(p)? #)
   {
+    if ($1)
+    {
+# If the "Pop" flag is given in the "fst" ("floating point store") 
+# operation, we need to clean the floating point stack.
+# We use the "ffreep st(0)" instruction, .
+      $binary .= "\xdf\xc0";
 
+      $adr_start += 2;
+    }
+# Rest gets done by jump.
+  }
+### Integer move
+  elsif ($disass =~ m#^mov#)
+  {
+# done by jump.
+  }
+  else
+  {
+    warn "Unknown instruction '" . $disass . "', patching unsafe!";
+    return undef;
   }
 
-# short jump
+
+### short jump
   if (($diff=$adr_end-$adr_start) >= 2)
   {
-# The opcode needs two bytes; these are already consumed.
+# The opcode needs two bytes; these are already consumed, and so the jump 
+# distance has to be reduced.
     $binary .= "\xeb" . pack("C", $diff-2);
     $adr_end=$adr_start;
   }
 
-# NOP
+### NOP.
+# That should never be needed ... all instructions involving memory access 
+# (even via a register) have at least 2 bytes.
+# (If some value would be persistently stored in a register, we wouldn't 
+# find it by looking at the memory contents.)
   $binary .= "\x90" x $diff
     if ($diff=$adr_end-$adr_start) >= 1;
 
   return $binary;
 }
-
 
 __END__
 
@@ -52,7 +86,7 @@ script can simply add and subtract. (C<gdb> returns hex values.)
 =head2 GetNOP
 
 Given a start and an end address, and the disassembled instructions 
-(although normally only one) in the range (via C<gdb>), return a binary 
+(although normally only one) in the given range (via C<gdb>), return a binary 
 string that, when written at the start address, causes this part of the 
 program to be ignored.
 
