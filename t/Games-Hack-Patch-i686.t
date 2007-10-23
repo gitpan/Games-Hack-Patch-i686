@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 sub BEGIN {
 use_ok('Games::Hack::Patch::i686');
@@ -19,8 +19,11 @@ is($bin, "\x90", "NOP");
 $bin=GetNOP(5,10, 'mov eax,$1');
 is($bin, "\xeb\x03", "Simply short jump");
 
+$bin=GetNOP(5,11, 'fstps +20(%ebp)');
+is($bin, "\xdf\xc0\xeb\x02", "Floating point store 1");
+
 $bin=GetNOP(5,10, 'fstp +20(%ebp)');
-is($bin, "\xdf\xc0\xeb\x01", "Floating point store");
+is($bin, "\xdf\xc0\xeb\x01", "Floating point store 2");
 $bin=GetNOP(5,10, 'fst +20(%ebp)');
 is($bin, "\xeb\x03", "Floating point store without pop");
 
