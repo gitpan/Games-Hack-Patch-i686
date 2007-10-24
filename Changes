@@ -1,5 +1,8 @@
 Revision history for Perl extension Games::Hack::Patch::i686.
 
+0.4 Oct 23rd, 2007
+	- Support for direct modification - eg. OR into memory.
+
 0.3 Oct 23rd, 2007
 	- Support for fstps
 

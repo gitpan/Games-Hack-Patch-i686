@@ -3,7 +3,7 @@
 
 package Games::Hack::Patch::i686;
 
-$VERSION=0.3;
+$VERSION=0.4;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -33,8 +33,8 @@ sub GetNOP
     }
 # Rest gets done by jump.
   }
-### Integer move
-  elsif ($disass =~ m#^mov#)
+### Integer move or direct modification
+  elsif ($disass =~ m#^(mov|or|and)#)
   {
 # done by jump.
   }
