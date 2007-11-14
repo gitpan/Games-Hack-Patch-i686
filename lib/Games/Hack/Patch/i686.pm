@@ -3,7 +3,7 @@
 
 package Games::Hack::Patch::i686;
 
-$VERSION=0.4;
+$VERSION=0.5;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -32,6 +32,14 @@ sub GetNOP
       $adr_start += 2;
     }
 # Rest gets done by jump.
+  }
+# Popping values from the stack
+  elsif ($disass =~ m#^pop#)
+  {
+# increment esp; rest done by jump.
+# is there a 64bit pop?
+    $binary .= "\x83\xc4\x04";
+    $adr_start += 3;
   }
 ### Integer move or direct modification
   elsif ($disass =~ m#^(mov|or|and)#)

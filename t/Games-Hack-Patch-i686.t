@@ -1,6 +1,6 @@
 #########################
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 sub BEGIN {
 use_ok('Games::Hack::Patch::i686');
@@ -26,6 +26,10 @@ $bin=GetNOP(5,10, 'fstp +20(%ebp)');
 is($bin, "\xdf\xc0\xeb\x01", "Floating point store 2");
 $bin=GetNOP(5,10, 'fst +20(%ebp)');
 is($bin, "\xeb\x03", "Floating point store without pop");
+
+$bin=GetNOP(10,14, 'popl [esi]');
+is($bin, "\x83\xc4\x04\x90", "Pop from stack");
+
 
 $has_warned=0;
 eval { 
