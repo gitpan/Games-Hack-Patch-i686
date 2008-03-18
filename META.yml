@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Games-Hack-Patch-i686
-version:             0.5
+version:             0.52
 abstract:            How to patch code sequences on i686
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.36
